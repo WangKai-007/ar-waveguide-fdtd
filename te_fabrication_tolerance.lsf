@@ -1,0 +1,71 @@
+period_value = 0.386e-6;
+incident_angle = 15;
+polarization_value = 90;
+mesh_value = 2e-9;
+
+duty_values = [0.63,0.65,0.67];
+height_values = [150e-9,160e-9,170e-9];
+
+eta_matrix = zeros(3,3);
+energy_matrix = zeros(3,3);
+
+for(i=1:length(duty_values)) {
+
+    for(j=1:length(height_values)) {
+
+        switchtolayout;
+
+        setnamed("grating_ridge","x span",period_value*duty_values(i));
+        setnamed("grating_ridge","y min",0);
+        setnamed("grating_ridge","y max",height_values(j));
+
+        setnamed("source","angle theta",incident_angle);
+        setnamed("source","polarization angle",polarization_value);
+
+        setnamed("mesh_grating","dx",mesh_value);
+        setnamed("mesh_grating","dy",mesh_value);
+
+        run;
+
+        total_T = -transmission("T_monitor");
+        total_R = transmission("R_monitor");
+        energy_matrix(i,j) = total_T+total_R;
+
+        order_numbers = gratingn("T_monitor");
+        order_power = grating("T_monitor");
+
+        if(sum(order_numbers==1)>0) {
+            target_index = find(order_numbers==1);
+            eta_matrix(i,j) = order_power(target_index)*total_T;
+        } else {
+            eta_matrix(i,j) = 0;
+        }
+    }
+}
+
+nominal_efficiency = eta_matrix(2,2);
+minimum_efficiency = min(eta_matrix);
+maximum_efficiency = max(eta_matrix);
+
+worst_degradation = (nominal_efficiency-minimum_efficiency)/nominal_efficiency*100;
+
+?"Rows = duty cycles 63%, 65%, 67%";
+?"Columns = heights 150 nm, 160 nm, 170 nm";
+
+?"TE +1 efficiency matrix (%):";
+?eta_matrix*100;
+
+?"Energy sum matrix (%):";
+?energy_matrix*100;
+
+?"Nominal efficiency at 65%, 160 nm (%):";
+?nominal_efficiency*100;
+
+?"Minimum efficiency in tolerance range (%):";
+?minimum_efficiency*100;
+
+?"Maximum efficiency in tolerance range (%):";
+?maximum_efficiency*100;
+
+?"Worst degradation from nominal (%):";
+?worst_degradation;

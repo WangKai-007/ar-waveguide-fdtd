@@ -1,0 +1,43 @@
+monitor_t = "T_monitor";
+monitor_r = "R_monitor";
+
+total_T = -transmission(monitor_t);
+total_R = transmission(monitor_r);
+energy_sum = total_T+total_R;
+
+order_numbers = gratingn(monitor_t);
+order_angles = gratingangle(monitor_t);
+order_fraction = grating(monitor_t);
+
+eta_p1 = 0;
+angle_p1 = 90;
+
+if(sum(order_numbers==1)>0) {
+    target_index = find(order_numbers==1);
+    eta_p1 = order_fraction(target_index)*total_T;
+    angle_p1 = order_angles(target_index);
+}
+
+?"Total transmission (%):";
+?100*total_T;
+
+?"Total reflection (%):";
+?100*total_R;
+
+?"Energy sum (%):";
+?100*energy_sum;
+
+?"+1 order angle (deg):";
+?angle_p1;
+
+?"+1 order efficiency (%):";
+?100*eta_p1;
+
+?"All propagating orders:";
+?order_numbers;
+
+?"All order angles (deg):";
+?order_angles;
+
+?"All efficiencies relative to source (%):";
+?100*order_fraction*total_T;

@@ -1,0 +1,62 @@
+period_value = 0.386e-6;
+duty_value = 0.65;
+incident_angle = 15;
+polarization_value = 90;
+mesh_value = 2e-9;
+
+height_values = linspace(145e-9,175e-9,16);
+
+eta_p1 = zeros(length(height_values));
+energy_sum = zeros(length(height_values));
+
+for(i=1:length(height_values)) {
+
+    switchtolayout;
+
+    setnamed("grating_ridge","x span",period_value*duty_value);
+    setnamed("grating_ridge","y min",0);
+    setnamed("grating_ridge","y max",height_values(i));
+
+    setnamed("source","angle theta",incident_angle);
+    setnamed("source","polarization angle",polarization_value);
+
+    setnamed("mesh_grating","dx",mesh_value);
+    setnamed("mesh_grating","dy",mesh_value);
+
+    run;
+
+    total_T = -transmission("T_monitor");
+    total_R = transmission("R_monitor");
+    energy_sum(i) = total_T+total_R;
+
+    order_numbers = gratingn("T_monitor");
+    order_power = grating("T_monitor");
+
+    if(sum(order_numbers==1)>0) {
+        target_index = find(order_numbers==1);
+        eta_p1(i) = order_power(target_index)*total_T;
+    } else {
+        eta_p1(i) = 0;
+    }
+}
+
+best_efficiency = max(eta_p1);
+best_index = find(eta_p1==best_efficiency);
+best_height = height_values(best_index);
+
+?"TE height values (nm):";
+?height_values*1e9;
+
+?"TE +1 efficiency (%):";
+?eta_p1*100;
+
+?"Energy sum (%):";
+?energy_sum*100;
+
+?"Best TE height (nm):";
+?best_height*1e9;
+
+?"Best TE +1 efficiency (%):";
+?best_efficiency*100;
+
+plot(height_values*1e9,eta_p1*100,"Grating height (nm)","TE +1 efficiency (%)","TE height optimization");

@@ -1,0 +1,63 @@
+period_value = 0.386e-6;
+duty_value = 0.67;
+
+# Height scan: 200 nm to 240 nm, 5 nm step
+height_values = linspace(200e-9,240e-9,9);
+
+eta_p1 = zeros(length(height_values));
+
+for(i=1:length(height_values)) {
+
+    switchtolayout;
+
+    setnamed("grating_ridge",
+             "x span",
+             period_value*duty_value);
+
+    setnamed("grating_ridge",
+             "y min",
+             0);
+
+    setnamed("grating_ridge",
+             "y max",
+             height_values(i));
+
+    run;
+
+    order_numbers = gratingn("T_monitor");
+    order_power = grating("T_monitor");
+    total_transmission = -transmission("T_monitor");
+
+    target_index = find(order_numbers==1);
+
+    eta_p1(i) = order_power(target_index)
+                *total_transmission;
+}
+
+best_efficiency = max(eta_p1);
+
+best_index = find(
+    eta_p1==best_efficiency
+);
+
+best_height = height_values(best_index);
+
+?"Height values (nm):";
+?height_values*1e9;
+
+?"+1 order efficiency (%):";
+?eta_p1*100;
+
+?"Best height (nm):";
+?best_height*1e9;
+
+?"Best +1 efficiency (%):";
+?best_efficiency*100;
+
+plot(
+    height_values*1e9,
+    eta_p1*100,
+    "Grating height (nm)",
+    "+1 order efficiency (%)",
+    "Fine grating height optimization"
+);

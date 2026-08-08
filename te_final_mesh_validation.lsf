@@ -1,0 +1,68 @@
+period_value = 0.386e-6;
+duty_value = 0.65;
+height_value = 160e-9;
+incident_angle = 15;
+polarization_value = 90;
+
+mesh_sizes = [4e-9,2e-9,1e-9];
+
+eta_p1 = zeros(length(mesh_sizes));
+energy_sum = zeros(length(mesh_sizes));
+output_angle = zeros(length(mesh_sizes));
+
+for(i=1:length(mesh_sizes)) {
+
+    switchtolayout;
+
+    setnamed("grating_ridge","x span",period_value*duty_value);
+    setnamed("grating_ridge","y min",0);
+    setnamed("grating_ridge","y max",height_value);
+
+    setnamed("source","angle theta",incident_angle);
+    setnamed("source","polarization angle",polarization_value);
+
+    setnamed("mesh_grating","dx",mesh_sizes(i));
+    setnamed("mesh_grating","dy",mesh_sizes(i));
+
+    run;
+
+    total_T = -transmission("T_monitor");
+    total_R = transmission("R_monitor");
+    energy_sum(i) = total_T+total_R;
+
+    order_numbers = gratingn("T_monitor");
+    order_angles = gratingangle("T_monitor");
+    order_power = grating("T_monitor");
+
+    if(sum(order_numbers==1)>0) {
+        target_index = find(order_numbers==1);
+        eta_p1(i) = order_power(target_index)*total_T;
+        output_angle(i) = order_angles(target_index);
+    } else {
+        eta_p1(i) = 0;
+        output_angle(i) = 90;
+    }
+}
+
+difference_4nm_2nm = abs(eta_p1(1)-eta_p1(2))/eta_p1(2)*100;
+difference_2nm_1nm = abs(eta_p1(2)-eta_p1(3))/eta_p1(3)*100;
+
+?"Mesh sizes (nm):";
+?mesh_sizes*1e9;
+
+?"TE +1 efficiency (%):";
+?eta_p1*100;
+
+?"TE +1 output angle (deg):";
+?output_angle;
+
+?"Energy sum (%):";
+?energy_sum*100;
+
+?"Relative difference: 4 nm vs 2 nm (%):";
+?difference_4nm_2nm;
+
+?"Relative difference: 2 nm vs 1 nm (%):";
+?difference_2nm_1nm;
+
+plot(mesh_sizes*1e9,eta_p1*100,"Mesh size (nm)","TE +1 efficiency (%)","Final TE mesh convergence");

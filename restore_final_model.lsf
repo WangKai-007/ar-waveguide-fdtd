@@ -1,0 +1,15 @@
+switchtolayout;
+
+setnamed("grating_ridge","x span",0.2509e-6);
+setnamed("grating_ridge","y min",0);
+setnamed("grating_ridge","y max",160e-9);
+
+setnamed("source","angle theta",15);
+setnamed("source","polarization angle",90);
+
+setnamed("mesh_grating","dx",1e-9);
+setnamed("mesh_grating","dy",1e-9);
+
+run;
+
+save("D:/FDTD_File/grating_TE_optimized_532nm_duty65_height160nm_angle15deg.fsp");

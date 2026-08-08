@@ -1,0 +1,80 @@
+period_value = 0.386e-6;
+duty_value = 0.67;
+height_value = 210e-9;
+
+# Incident angle: 0 to 30 degrees
+incident_angles = linspace(0,30,7);
+
+eta_p1 = zeros(length(incident_angles));
+output_angles = zeros(length(incident_angles));
+
+for(i=1:length(incident_angles)) {
+
+    switchtolayout;
+
+    setnamed(
+        "grating_ridge",
+        "x span",
+        period_value*duty_value
+    );
+
+    setnamed(
+        "grating_ridge",
+        "y min",
+        0
+    );
+
+    setnamed(
+        "grating_ridge",
+        "y max",
+        height_value
+    );
+
+    setnamed(
+        "source",
+        "angle theta",
+        incident_angles(i)
+    );
+
+    run;
+
+    order_numbers = gratingn("T_monitor");
+    order_angles = gratingangle("T_monitor");
+    order_power = grating("T_monitor");
+
+    total_transmission = -transmission("T_monitor");
+
+    if(sum(order_numbers==1)>0) {
+        target_index = find(order_numbers==1);
+        eta_p1(i) = order_power(target_index)*total_transmission;
+        output_angles(i) = order_angles(target_index);
+    } else {
+        eta_p1(i) = 0;
+        output_angles(i) = 90;
+    }
+}
+
+?"Incident angles (deg):";
+?incident_angles;
+
+?"+1 output angles (deg):";
+?output_angles;
+
+?"+1 efficiency (%):";
+?eta_p1*100;
+
+plot(
+    incident_angles,
+    eta_p1*100,
+    "Incident angle (deg)",
+    "+1 order efficiency (%)",
+    "Angular efficiency response"
+);
+
+plot(
+    incident_angles,
+    output_angles,
+    "Incident angle (deg)",
+    "+1 output angle (deg)",
+    "Input-output angle mapping"
+);

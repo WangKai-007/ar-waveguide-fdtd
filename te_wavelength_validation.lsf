@@ -1,0 +1,73 @@
+period_value = 0.386e-6;
+duty_value = 0.65;
+height_value = 160e-9;
+incident_angle = 15;
+polarization_value = 90;
+mesh_value = 2e-9;
+
+wavelength_values = linspace(450e-9,650e-9,9);
+
+eta_p1 = zeros(length(wavelength_values));
+output_angles = zeros(length(wavelength_values));
+energy_sum = zeros(length(wavelength_values));
+
+for(i=1:length(wavelength_values)) {
+
+    switchtolayout;
+
+    setnamed("grating_ridge","x span",period_value*duty_value);
+    setnamed("grating_ridge","y min",0);
+    setnamed("grating_ridge","y max",height_value);
+
+    setnamed("source","angle theta",incident_angle);
+    setnamed("source","polarization angle",polarization_value);
+    setnamed("source","wavelength start",wavelength_values(i));
+    setnamed("source","wavelength stop",wavelength_values(i));
+
+    setnamed("mesh_grating","dx",mesh_value);
+    setnamed("mesh_grating","dy",mesh_value);
+
+    run;
+
+    total_T = -transmission("T_monitor");
+    total_R = transmission("R_monitor");
+    energy_sum(i) = total_T+total_R;
+
+    order_numbers = gratingn("T_monitor");
+    order_angles = gratingangle("T_monitor");
+    order_power = grating("T_monitor");
+
+    if(sum(order_numbers==1)>0) {
+        target_index = find(order_numbers==1);
+        eta_p1(i) = order_power(target_index)*total_T;
+        output_angles(i) = order_angles(target_index);
+    } else {
+        eta_p1(i) = 0;
+        output_angles(i) = 90;
+    }
+}
+
+?"Wavelengths (nm):";
+?wavelength_values*1e9;
+
+?"TE +1 efficiency (%):";
+?eta_p1*100;
+
+?"TE +1 output angle (deg):";
+?output_angles;
+
+?"Energy sum (%):";
+?energy_sum*100;
+
+maximum_efficiency = max(eta_p1);
+maximum_index = find(eta_p1==maximum_efficiency);
+
+?"Maximum efficiency wavelength (nm):";
+?wavelength_values(maximum_index)*1e9;
+
+?"Maximum TE +1 efficiency (%):";
+?maximum_efficiency*100;
+
+plot(wavelength_values*1e9,eta_p1*100,"Wavelength (nm)","TE +1 efficiency (%)","TE wavelength response");
+
+plot(wavelength_values*1e9,output_angles,"Wavelength (nm)","TE +1 output angle (deg)","TE wavelength-angle dispersion");
