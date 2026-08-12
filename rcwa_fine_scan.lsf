@@ -1,0 +1,30 @@
+# Fine 2D RCWA scan around the coarse optimum.
+# Rows: duty cycle; columns: ridge height in nm.
+
+period = 386e-9;
+duty_fine = [0.60,0.625,0.65,0.675,0.70];
+height_fine_nm = [140,150,160,170,180];
+eta_p1_fine = zeros(length(duty_fine),length(height_fine_nm));
+
+for (i=1:length(duty_fine)) {
+  for (j=1:length(height_fine_nm)) {
+    switchtolayout;
+    setnamed("grating_ridge","x span",duty_fine(i)*period);
+    setnamed("grating_ridge","y max",height_fine_nm(j)*1e-9);
+    run("RCWA");
+    gp_fine = getresult("RCWA","grating_power");
+    p_fine = pinch(gp_fine.Ts_power);
+    eta_p1_fine(i,j) = p_fine(3); # transmitted +1 order
+  }
+}
+
+?duty_fine;
+?height_fine_nm;
+?eta_p1_fine;
+
+# Restore verified baseline after the scan.
+switchtolayout;
+setnamed("grating_ridge","x span",0.65*period);
+setnamed("grating_ridge","y max",160e-9);
+run("RCWA");
+save("D:/FDTD_File/grating_RCWA_baseline_532nm.fsp");

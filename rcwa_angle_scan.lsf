@@ -1,0 +1,27 @@
+# Angular tolerance at the fine-scan optimum: duty 65%, height 160 nm.
+
+theta_deg = [5,10,15,20,25];
+eta_p1_theta = zeros(length(theta_deg));
+
+for (i=1:length(theta_deg)) {
+  switchtolayout;
+  setnamed("RCWA","angle theta",theta_deg(i));
+  run("RCWA");
+  gp_theta = getresult("RCWA","grating_power");
+  p_theta = pinch(gp_theta.Ts_power);
+  i_p1 = find(gp_theta.n==1);
+  if (length(i_p1)>0) {
+    eta_p1_theta(i) = p_theta(i_p1(1));
+  } else {
+    eta_p1_theta(i) = 0; # +1 order is evanescent at this angle
+  }
+}
+
+?theta_deg;
+?eta_p1_theta;
+
+# Restore the validated operating point.
+switchtolayout;
+setnamed("RCWA","angle theta",15);
+run("RCWA");
+save("D:/FDTD_File/grating_RCWA_baseline_532nm.fsp");

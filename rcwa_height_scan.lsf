@@ -1,0 +1,24 @@
+# RCWA height scan at the verified 65% duty cycle.
+
+switchtolayout;
+
+height_nm = [80,100,120,140,160,180,200,220,240];
+eta_p1_h = zeros(length(height_nm));
+
+for (i=1:length(height_nm)) {
+  switchtolayout;
+  setnamed("grating_ridge","y max",height_nm(i)*1e-9);
+  run("RCWA");
+  gp_h = getresult("RCWA","grating_power");
+  p_h = pinch(gp_h.Ts_power);
+  eta_p1_h(i) = p_h(3); # +1 transmitted order
+}
+
+?height_nm;
+?eta_p1_h;
+
+# Restore the verified baseline height.
+switchtolayout;
+setnamed("grating_ridge","y max",160e-9);
+run("RCWA");
+save("D:/FDTD_File/grating_RCWA_baseline_532nm.fsp");

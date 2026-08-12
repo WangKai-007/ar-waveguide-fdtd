@@ -6,6 +6,8 @@ setnamed("grating_ridge","y max",160e-9);
 
 setnamed("source","angle theta",15);
 setnamed("source","polarization angle",90);
+setnamed("source","wavelength start",532e-9);
+setnamed("source","wavelength stop",532e-9);
 
 setnamed("mesh_grating","dx",1e-9);
 setnamed("mesh_grating","dy",1e-9);
