@@ -1,0 +1,25 @@
+mname = "T_monitor";
+
+N = gratingn(mname);
+theta = gratingangle(mname);
+G = grating(mname);
+
+T_total = -transmission(mname);
+eta = G*T_total;
+
+?"diffraction order N:";
+?N;
+
+?"diffraction angle theta (deg):";
+?theta;
+
+?"relative power within transmitted light:";
+?G;
+
+?"efficiency relative to source:";
+?eta;
+
+plot(theta,eta,
+     "diffraction angle (deg)",
+     "efficiency",
+     "Transmission diffraction orders");

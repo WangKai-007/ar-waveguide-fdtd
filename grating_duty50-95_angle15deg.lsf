@@ -1,0 +1,43 @@
+period = 0.386e-6;
+duty = 0.65:0.01:0.70;
+
+eta_p1 = zeros(length(duty));
+
+for(i=1:length(duty)) {
+
+    switchtolayout;
+
+    setnamed("grating_ridge",
+             "x span",
+             period*duty(i));
+
+    run;
+
+    N = gratingn("T_monitor");
+    G = grating("T_monitor");
+    T_total = -transmission("T_monitor");
+
+    target = find(N==1);
+    eta_p1(i) = G(target)*T_total;
+}
+
+?"duty cycle (%):";
+?100*duty;
+
+?"+1 order efficiency (%):";
+?100*eta_p1;
+
+best_eta = max(eta_p1);
+best_index = find(eta_p1==best_eta);
+
+?"best duty cycle (%):";
+?100*duty(best_index);
+
+?"best +1 efficiency (%):";
+?100*best_eta;
+
+plot(100*duty,
+     100*eta_p1,
+     "Duty cycle (%)",
+     "+1 order efficiency (%)",
+     "Duty cycle optimization");

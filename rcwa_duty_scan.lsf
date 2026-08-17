@@ -1,0 +1,26 @@
+# RCWA duty-cycle scan for the 532 nm TE baseline grating
+# Scans 45% to 80% in 5% steps; objective is transmitted +1 order.
+
+switchtolayout;
+
+period = 386e-9;
+duty = linspace(0.45,0.80,8);
+eta_p1 = zeros(length(duty));
+
+for (i=1:length(duty)) {
+  switchtolayout;
+  setnamed("grating_ridge","x span",duty(i)*period);
+  run("RCWA");
+  gp = getresult("RCWA","grating_power");
+  p = pinch(gp.Ts_power);
+  eta_p1(i) = p(3); # n = [-1, 0, +1], so entry 3 is +1
+}
+
+?duty;
+?eta_p1;
+
+# Restore the verified FDTD/RCWA baseline: duty = 65%.
+switchtolayout;
+setnamed("grating_ridge","x span",0.65*period);
+run("RCWA");
+save("D:/FDTD_File/grating_RCWA_baseline_532nm.fsp");

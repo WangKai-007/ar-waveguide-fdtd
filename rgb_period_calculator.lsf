@@ -1,0 +1,18 @@
+# RGB grating-period calculator for a chosen waveguide propagation angle.
+# Units: wavelengths and returned periods are nm; angles are degrees.
+
+n_core = 1.8;
+theta_in_deg = 15;
+theta_target_deg = 65.4353;
+lambda_rgb_nm = [460,532,620];
+
+denominator = n_core*sin(theta_target_deg*pi/180)-sin(theta_in_deg*pi/180);
+period_rgb_nm = lambda_rgb_nm/denominator;
+
+?lambda_rgb_nm;
+?period_rgb_nm;
+
+# Expected for the current green design:
+# Blue 460 nm -> about 333.15 nm
+# Green 532 nm -> about 385.99 nm
+# Red 620 nm -> about 449.84 nm

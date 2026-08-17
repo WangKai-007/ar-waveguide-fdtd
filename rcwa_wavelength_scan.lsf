@@ -1,0 +1,32 @@
+# Spectral response at the operating geometry and angle.
+# Fixed: duty 65%, height 160 nm, theta 15 deg, TE/S polarization.
+
+lambda_nm = [460,490,520,532,550,580,620];
+eta_p1_lambda = zeros(length(lambda_nm));
+
+for (i=1:length(lambda_nm)) {
+  switchtolayout;
+  setnamed("RCWA","angle theta",15);
+  setnamed("RCWA","angle phi",90);
+  setnamed("RCWA","wavelength center",lambda_nm(i)*1e-9);
+  run("RCWA");
+  gp_lambda = getresult("RCWA","grating_power");
+  p_lambda = pinch(gp_lambda.Ts_power);
+  eta_p1_lambda(i) = 0;
+  for (k=1:length(gp_lambda.n)) {
+    if (gp_lambda.n(k)==1) {
+      eta_p1_lambda(i) = p_lambda(k);
+    }
+  }
+}
+
+?lambda_nm;
+?eta_p1_lambda;
+
+# Restore the 532 nm operating point.
+switchtolayout;
+setnamed("RCWA","angle theta",15);
+setnamed("RCWA","angle phi",90);
+setnamed("RCWA","wavelength center",532e-9);
+run("RCWA");
+save("D:/FDTD_File/grating_RCWA_baseline_532nm.fsp");
